@@ -15,6 +15,7 @@ func New(r io.Reader) Lexer {
 	return Lexer{r: bufio.NewReader(r)}
 }
 
+// ReadToken reads a single Token from the Lexer
 func (l Lexer) ReadToken() token.Token {
 	if !consumeWhiteSpace(l.r) {
 		return token.EOFToken
@@ -42,6 +43,7 @@ func isWhitespace(b byte) bool {
 	return b == ' ' || b == '\n' || b == '\t'
 }
 
+// reads a single token that begins with the next byte read from r
 func readTokenNoWhitespace(r *bufio.Reader) token.Token {
 	b, _ := r.ReadByte()
 
@@ -74,18 +76,20 @@ func readTokenOfType(r *bufio.Reader, tt token.TokenType) token.Token {
 
 	case token.Boolean:
 		_ = r.UnreadByte()
-		return readBooleanToken(r)
+		return readBoolToken(r)
 
 	case token.Integer:
 		_ = r.UnreadByte()
 		return readNumericToken(r)
-	}
 
-	// not possible, but anyways
-	panic("readTokenOfType() received unknown tokenType")
+	default:
+		// not possible, indicates some internal bug
+		panic("readTokenOfType() received unknown tokenType, INTERNAL BUG")
+	}
 }
 
-func readNByteString(r *bufio.Reader, n int) (string, error) {
+// utility function used to read bool & null literals
+func readNByteStr(r *bufio.Reader, n int) (string, error) {
 	bytes := make([]byte, n)
 	n, err := io.ReadFull(r, bytes)
 	bytes = bytes[:n]

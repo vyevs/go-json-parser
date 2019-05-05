@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/vyevs/lex"
+	"github.com/vyevs/json/lex"
 )
 
 func TestParseArray(t *testing.T) {

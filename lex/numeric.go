@@ -7,6 +7,8 @@ import (
 	"github.com/vyevs/json/token"
 )
 
+// reads an Integer or FloatingPoint token from r
+// returns an Invalid token if the following bytes do not form a numeric token
 func readNumericToken(r *bufio.Reader) token.Token {
 	literal, ok := readNumericLiteral(r)
 	if !ok {
@@ -22,6 +24,8 @@ func readNumericToken(r *bufio.Reader) token.Token {
 	return token.Token{TokenType: tokType, Literal: literal}
 }
 
+// readNumericLiteral attempts to read a numeric literal(either integer or floating point) from r
+// consumes only the bytes of the numeric literal, not the byte after
 func readNumericLiteral(r *bufio.Reader) (string, bool) {
 	b, err := r.ReadByte()
 	if err != nil {
@@ -54,6 +58,7 @@ func readNumericLiteral(r *bufio.Reader) (string, bool) {
 	return builder.String(), true
 }
 
+// checks the numeric type of the literal, either token.Integer or token.FloatingPoint
 func numericLiteralTokenType(literal string) token.TokenType {
 	if strings.Contains(literal, ".") {
 		return token.FloatingPoint
@@ -64,6 +69,7 @@ func numericLiteralTokenType(literal string) token.TokenType {
 // validates that the literal does not begin with an illegal 0
 // e.g.: 01, 01.1, -01, -01.1
 func validateNumericLiteral(literal string) bool {
+	// strip minus for negative number
 	if literal[0] == '-' {
 		literal = literal[1:]
 	}

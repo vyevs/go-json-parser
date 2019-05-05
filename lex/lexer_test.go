@@ -8,7 +8,7 @@ import (
 	"github.com/vyevs/json/token"
 )
 
-func TestReadBooleanLiteral(t *testing.T) {
+func TestReadBoolLiteral(t *testing.T) {
 	tests := []struct {
 		str    string
 		want   string
@@ -26,7 +26,7 @@ func TestReadBooleanLiteral(t *testing.T) {
 	for _, test := range tests {
 		r := bufio.NewReader(strings.NewReader(test.str))
 
-		got, ok := readBooleanLiteral(r)
+		got, ok := readBoolLiteral(r)
 
 		if ok != test.wantOk || got != test.want {
 			t.Errorf("str: %q, want: %q, got: %q, wantOk: %v, got ok: %v",
@@ -36,7 +36,7 @@ func TestReadBooleanLiteral(t *testing.T) {
 
 }
 
-func TestReadBooleanToken(t *testing.T) {
+func TestReadBoolToken(t *testing.T) {
 	tests := []struct {
 		str  string
 		want token.Token
@@ -70,7 +70,7 @@ func TestReadBooleanToken(t *testing.T) {
 	for _, test := range tests {
 		r := bufio.NewReader(strings.NewReader(test.str))
 
-		got := readBooleanToken(r)
+		got := readBoolToken(r)
 
 		if got != test.want {
 			t.Errorf("str: %q, want: %q, got: %q", test.str, test.want, got)
@@ -426,7 +426,7 @@ func TestReadToken(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		lexer := NewLexer(strings.NewReader(test.str))
+		lexer := New(strings.NewReader(test.str))
 
 		got := readAllTokens(lexer)
 

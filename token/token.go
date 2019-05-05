@@ -30,6 +30,7 @@ const (
 	Invalid
 )
 
+// Token represents a sequence of characters in a json doc
 type Token struct {
 	TokenType TokenType
 	Literal   string
@@ -76,7 +77,7 @@ var tokenTypeToString = map[TokenType]string{
 	Colon:                "Colon",
 	Comma:                "Comma",
 
-	String:        "StringLiteral",
+	String:        "String",
 	Integer:       "Integer",
 	FloatingPoint: "FloatingPoint",
 	Boolean:       "Boolean",
@@ -108,7 +109,7 @@ var byteToTokenType = map[byte]TokenType{
 }
 
 // ByteToTokenType returns what the next TokenType will be
-// if the byte b is encountered
+// once byte b is encountered
 func ByteToTokenType(b byte) TokenType {
 	if tokType, ok := byteToTokenType[b]; ok {
 		return tokType
