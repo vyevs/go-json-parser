@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"vlad/json/token"
+	"github.com/vyevs/json/token"
 )
 
 func TestReadBooleanLiteral(t *testing.T) {

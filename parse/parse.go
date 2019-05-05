@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"io"
 	"strconv"
-	"vlad/json/lex"
-	"vlad/json/token"
+
+	"github.com/vyevs/json/lex"
+	"github.com/vyevs/json/token"
 )
 
 func Parse(r io.Reader) (interface{}, error) {

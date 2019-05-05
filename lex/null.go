@@ -2,7 +2,8 @@ package lex
 
 import (
 	"bufio"
-	"vlad/json/token"
+
+	"github.com/vyevs/json/token"
 )
 
 func readNullToken(r *bufio.Reader) token.Token {

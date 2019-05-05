@@ -3,7 +3,8 @@ package lex
 import (
 	"bufio"
 	"io"
-	"vlad/json/token"
+
+	"github.com/vyevs/json/token"
 )
 
 type Lexer struct {

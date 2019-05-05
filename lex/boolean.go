@@ -3,7 +3,8 @@ package lex
 import (
 	"bufio"
 	"fmt"
-	"vlad/json/token"
+
+	"github.com/vyevs/json/token"
 )
 
 func readBooleanToken(r *bufio.Reader) token.Token {

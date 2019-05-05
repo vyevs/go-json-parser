@@ -3,7 +3,8 @@ package parse
 import (
 	"strings"
 	"testing"
-	"vlad/json/lex"
+
+	"github.com/vyevs/lex"
 )
 
 func TestParseArray(t *testing.T) {

@@ -4,7 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"vlad/json/parse"
+
+	"github.com/vyevs/json/parse"
 )
 
 func main() {
