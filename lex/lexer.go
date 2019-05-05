@@ -15,22 +15,25 @@ func New(r io.Reader) Lexer {
 	return Lexer{r: bufio.NewReader(r)}
 }
 
-func (lexer Lexer) ReadToken() token.Token {
-	if consumeWhiteSpace(lexer.r) != nil {
+func (l Lexer) ReadToken() token.Token {
+	if !consumeWhiteSpace(l.r) {
 		return token.EOFToken
 	}
-	return readTokenNoWhitespace(lexer.r)
+	return readTokenNoWhitespace(l.r)
 }
 
-func consumeWhiteSpace(r *bufio.Reader) error {
+// consumes all whitespace characters as defined by isWhiteSpace()
+// returns whether there are any more characters to be read
+// from the reader
+func consumeWhiteSpace(r *bufio.Reader) bool {
 	for {
 		b, err := r.ReadByte()
 		if err != nil {
-			return err
+			return false
 		}
 		if !isWhitespace(b) {
 			_ = r.UnreadByte()
-			return nil
+			return true
 		}
 	}
 }
@@ -46,21 +49,21 @@ func readTokenNoWhitespace(r *bufio.Reader) token.Token {
 }
 
 func readTokenBeginningWithByte(r *bufio.Reader, b byte) token.Token {
-	tokenType := token.ByteToTokenType(b)
+	tt := token.ByteToTokenType(b)
 
-	if tokenType == token.Invalid {
+	if tt == token.Invalid {
 		return token.Token{TokenType: token.Invalid, Literal: string(b)}
 	}
 
-	return readTokenOfType(r, tokenType)
+	return readTokenOfType(r, tt)
 }
 
-func readTokenOfType(r *bufio.Reader, tokenType token.TokenType) token.Token {
-	if tok, ok := token.TokenTypeToPredefinedToken(tokenType); ok {
+func readTokenOfType(r *bufio.Reader, tt token.TokenType) token.Token {
+	if tok, ok := token.TokenTypeToPredefinedToken(tt); ok {
 		return tok
 	}
 
-	switch tokenType {
+	switch tt {
 
 	case token.String:
 		return readStringToken(r)
