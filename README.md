@@ -14,11 +14,11 @@ The `Parse(io.Reader)` and `ParseStr(string)` functions are the interface provid
 
 Run tests:
 
-`GOPATH/github.com/vyevs/gojson> test ./...`
+`GOPATH/github.com/vyevs/gojson> go test ./...`
 
 Run benchmark that's setup against encoding/json:
 
-`GOPATH/github.com/vyevs/gojson> test bench=. ./...`
+`GOPATH/github.com/vyevs/gojson> go test bench=. ./...`
 
 NOTE: Benchmarks may take some time to run, as they run against the test files in parse/testdata
 Any files added to testdata will be tested against
