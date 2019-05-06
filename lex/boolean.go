@@ -4,19 +4,19 @@ import (
 	"bufio"
 	"fmt"
 
-	"github.com/vyevs/json/token"
+	"github.com/vyevs/json/tok"
 )
 
 // attempts to read "true" or "false" and returns the corresponding token
 // if not successful in reading the bool literal, returns an invalid token
 // with the literal encountered instead
-func readBoolToken(r *bufio.Reader) token.Token {
+func readBoolToken(r *bufio.Reader) tok.Token {
 	literal, ok := readBoolLiteral(r)
-	tokenType := token.Boolean
+	tokenType := tok.Boolean
 	if !ok {
-		tokenType = token.Invalid
+		tokenType = tok.Invalid
 	}
-	return token.Token{TokenType: tokenType, Literal: literal}
+	return tok.Token{TokenType: tokenType, Literal: literal}
 }
 
 // attempts to read either "true" or "false" from the reader

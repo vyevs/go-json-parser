@@ -4,24 +4,24 @@ import (
 	"bufio"
 	"strings"
 
-	"github.com/vyevs/json/token"
+	"github.com/vyevs/json/tok"
 )
 
 // reads an Integer or FloatingPoint token from r
 // returns an Invalid token if the following bytes do not form a numeric token
-func readNumericToken(r *bufio.Reader) token.Token {
+func readNumericToken(r *bufio.Reader) tok.Token {
 	literal, ok := readNumericLiteral(r)
 	if !ok {
-		return token.Token{TokenType: token.Invalid, Literal: literal}
+		return tok.Token{TokenType: tok.Invalid, Literal: literal}
 	}
 
 	if ok := validateNumericLiteral(literal); !ok {
-		return token.Token{TokenType: token.Invalid, Literal: literal}
+		return tok.Token{TokenType: tok.Invalid, Literal: literal}
 	}
 
 	tokType := numericLiteralTokenType(literal)
 
-	return token.Token{TokenType: tokType, Literal: literal}
+	return tok.Token{TokenType: tokType, Literal: literal}
 }
 
 // readNumericLiteral attempts to read a numeric literal(either integer or floating point) from r
@@ -59,11 +59,11 @@ func readNumericLiteral(r *bufio.Reader) (string, bool) {
 }
 
 // checks the numeric type of the literal, either token.Integer or token.FloatingPoint
-func numericLiteralTokenType(literal string) token.TokenType {
+func numericLiteralTokenType(literal string) tok.TokenType {
 	if strings.Contains(literal, ".") {
-		return token.FloatingPoint
+		return tok.FloatingPoint
 	}
-	return token.Integer
+	return tok.Integer
 }
 
 // validates that the literal does not begin with an illegal 0

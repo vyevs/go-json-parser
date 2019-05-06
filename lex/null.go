@@ -3,22 +3,22 @@ package lex
 import (
 	"bufio"
 
-	"github.com/vyevs/json/token"
+	"github.com/vyevs/json/tok"
 )
 
 // attempts to read "null" and return the corresponding token
 // returns an Token with TokenType Invalid if not successful
 // upon success consumes ONLY the "null" string from the reader
-func readNullToken(r *bufio.Reader) token.Token {
+func readNullToken(r *bufio.Reader) tok.Token {
 	literal, ok := readNullLiteral(r)
-	tokenType := token.Null
+	tokenType := tok.Null
 	if !ok {
-		tokenType = token.Invalid
+		tokenType = tok.Invalid
 	}
-	return token.Token{TokenType: tokenType, Literal: literal}
+	return tok.Token{TokenType: tokenType, Literal: literal}
 }
 
-// attemps to read "null" from the reader
+// attempts to read "null" from the reader
 // bool return value indicates whether this was successful
 func readNullLiteral(r *bufio.Reader) (string, bool) {
 	str, err := readNByteStr(r, 4)

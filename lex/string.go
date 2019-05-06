@@ -4,18 +4,18 @@ import (
 	"bufio"
 	"strings"
 
-	"github.com/vyevs/json/token"
+	"github.com/vyevs/json/tok"
 )
 
 // attempts to read a string literal token from r
 // expects the beginning double quote to have already been consumed
-func readStringToken(r *bufio.Reader) token.Token {
+func readStringToken(r *bufio.Reader) tok.Token {
 	literal, ok := readStringLiteral(r)
-	tokenType := token.String
+	tokenType := tok.String
 	if !ok {
-		tokenType = token.Invalid
+		tokenType = tok.Invalid
 	}
-	return token.Token{TokenType: tokenType, Literal: literal}
+	return tok.Token{TokenType: tokenType, Literal: literal}
 }
 
 // attempts to read a string token (literal contained in double quotes)

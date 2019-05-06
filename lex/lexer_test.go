@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/vyevs/json/token"
+	"github.com/vyevs/json/tok"
 )
 
 func TestReadBoolLiteral(t *testing.T) {
@@ -39,31 +39,31 @@ func TestReadBoolLiteral(t *testing.T) {
 func TestReadBoolToken(t *testing.T) {
 	tests := []struct {
 		str  string
-		want token.Token
+		want tok.Token
 	}{
 		{
 			str:  "true",
-			want: token.Token{TokenType: token.Boolean, Literal: "true"},
+			want: tok.Token{TokenType: tok.Boolean, Literal: "true"},
 		},
 		{
 			str:  "false",
-			want: token.Token{TokenType: token.Boolean, Literal: "false"},
+			want: tok.Token{TokenType: tok.Boolean, Literal: "false"},
 		},
 		{
 			str:  "s",
-			want: token.Token{TokenType: token.Invalid, Literal: "s"},
+			want: tok.Token{TokenType: tok.Invalid, Literal: "s"},
 		},
 		{
 			str:  "abcdef",
-			want: token.Token{TokenType: token.Invalid, Literal: "abcde"},
+			want: tok.Token{TokenType: tok.Invalid, Literal: "abcde"},
 		},
 		{
 			str:  " true",
-			want: token.Token{TokenType: token.Invalid, Literal: " true"},
+			want: tok.Token{TokenType: tok.Invalid, Literal: " true"},
 		},
 		{
 			str:  "truefalse",
-			want: token.Token{TokenType: token.Boolean, Literal: "true"},
+			want: tok.Token{TokenType: tok.Boolean, Literal: "true"},
 		},
 	}
 
@@ -105,23 +105,23 @@ func TestReadNullLiteral(t *testing.T) {
 func TestReadNullToken(t *testing.T) {
 	tests := []struct {
 		str  string
-		want token.Token
+		want tok.Token
 	}{
 		{
 			str:  "null",
-			want: token.Token{TokenType: token.Null, Literal: "null"},
+			want: tok.Token{TokenType: tok.Null, Literal: "null"},
 		},
 		{
 			str:  "s",
-			want: token.Token{TokenType: token.Invalid, Literal: "s"},
+			want: tok.Token{TokenType: tok.Invalid, Literal: "s"},
 		},
 		{
 			str:  " null",
-			want: token.Token{TokenType: token.Invalid, Literal: " nul"},
+			want: tok.Token{TokenType: tok.Invalid, Literal: " nul"},
 		},
 		{
 			str:  "nul l",
-			want: token.Token{TokenType: token.Invalid, Literal: "nul "},
+			want: tok.Token{TokenType: tok.Invalid, Literal: "nul "},
 		},
 	}
 
@@ -142,6 +142,7 @@ func TestReadNumericLiteral(t *testing.T) {
 		want   string
 		wantOk bool
 	}{
+		{str: "", want: "", wantOk: false},
 		{str: "1", want: "1", wantOk: true},
 		{str: "1234531231", want: "1234531231", wantOk: true},
 		{str: "1.1", want: "1.1", wantOk: true},
@@ -172,63 +173,63 @@ func TestReadNumericLiteral(t *testing.T) {
 func TestReadNumericToken(t *testing.T) {
 	tests := []struct {
 		str  string
-		want token.Token
+		want tok.Token
 	}{
 		{
 			str:  "1",
-			want: token.Token{TokenType: token.Integer, Literal: "1"},
+			want: tok.Token{TokenType: tok.Integer, Literal: "1"},
 		},
 		{
 			str:  "1234531231",
-			want: token.Token{TokenType: token.Integer, Literal: "1234531231"},
+			want: tok.Token{TokenType: tok.Integer, Literal: "1234531231"},
 		},
 		{
 			str:  "1.1",
-			want: token.Token{TokenType: token.FloatingPoint, Literal: "1.1"},
+			want: tok.Token{TokenType: tok.FloatingPoint, Literal: "1.1"},
 		},
 		{
 			str:  "0.123455",
-			want: token.Token{TokenType: token.FloatingPoint, Literal: "0.123455"},
+			want: tok.Token{TokenType: tok.FloatingPoint, Literal: "0.123455"},
 		},
 		{
 			str:  "000010.21323",
-			want: token.Token{TokenType: token.Invalid, Literal: "000010.21323"},
+			want: tok.Token{TokenType: tok.Invalid, Literal: "000010.21323"},
 		},
 		{
 			str:  "abc",
-			want: token.Token{TokenType: token.Invalid, Literal: "a"},
+			want: tok.Token{TokenType: tok.Invalid, Literal: "a"},
 		},
 		{
 			str:  "1222.23123.1",
-			want: token.Token{TokenType: token.Invalid, Literal: "1222.23123."},
+			want: tok.Token{TokenType: tok.Invalid, Literal: "1222.23123."},
 		},
 		{
 			str:  "123abc",
-			want: token.Token{TokenType: token.Integer, Literal: "123"},
+			want: tok.Token{TokenType: tok.Integer, Literal: "123"},
 		},
 		{
 			str:  "123.",
-			want: token.Token{TokenType: token.Invalid, Literal: "123."},
+			want: tok.Token{TokenType: tok.Invalid, Literal: "123."},
 		},
 		{
 			str:  "-1",
-			want: token.Token{TokenType: token.Integer, Literal: "-1"},
+			want: tok.Token{TokenType: tok.Integer, Literal: "-1"},
 		},
 		{
 			str:  "-1235432132",
-			want: token.Token{TokenType: token.Integer, Literal: "-1235432132"},
+			want: tok.Token{TokenType: tok.Integer, Literal: "-1235432132"},
 		},
 		{
 			str:  "-123.123",
-			want: token.Token{TokenType: token.FloatingPoint, Literal: "-123.123"},
+			want: tok.Token{TokenType: tok.FloatingPoint, Literal: "-123.123"},
 		},
 		{
 			str:  "-123.123.",
-			want: token.Token{TokenType: token.Invalid, Literal: "-123.123."},
+			want: tok.Token{TokenType: tok.Invalid, Literal: "-123.123."},
 		},
 		{
 			str:  "-0.123",
-			want: token.Token{TokenType: token.FloatingPoint, Literal: "-0.123"},
+			want: tok.Token{TokenType: tok.FloatingPoint, Literal: "-0.123"},
 		},
 	}
 
@@ -272,35 +273,35 @@ func TestReadStringLiteral(t *testing.T) {
 func TestReadStringToken(t *testing.T) {
 	tests := []struct {
 		str  string
-		want token.Token
+		want tok.Token
 	}{
 		{
 			str:  `potato"`,
-			want: token.Token{TokenType: token.String, Literal: "potato"},
+			want: tok.Token{TokenType: tok.String, Literal: "potato"},
 		},
 		{
 			str:  `123abc123.123abc."`,
-			want: token.Token{TokenType: token.String, Literal: "123abc123.123abc."},
+			want: tok.Token{TokenType: tok.String, Literal: "123abc123.123abc."},
 		},
 		{
 			str:  `abc123"abc123`,
-			want: token.Token{TokenType: token.String, Literal: "abc123"},
+			want: tok.Token{TokenType: tok.String, Literal: "abc123"},
 		},
 		{
 			str:  `   abc123  abc123   "`,
-			want: token.Token{TokenType: token.String, Literal: "   abc123  abc123   "},
+			want: tok.Token{TokenType: tok.String, Literal: "   abc123  abc123   "},
 		},
 		{
 			str:  `"`,
-			want: token.Token{TokenType: token.String, Literal: ""},
+			want: tok.Token{TokenType: tok.String, Literal: ""},
 		},
 		{
 			str:  ``,
-			want: token.Token{TokenType: token.Invalid, Literal: ""},
+			want: tok.Token{TokenType: tok.Invalid, Literal: ""},
 		},
 		{
 			str:  `"""`,
-			want: token.Token{TokenType: token.String, Literal: ""},
+			want: tok.Token{TokenType: tok.String, Literal: ""},
 		},
 	}
 
@@ -318,41 +319,41 @@ func TestReadStringToken(t *testing.T) {
 func TestReadToken(t *testing.T) {
 	tests := []struct {
 		str  string
-		want []token.Token
+		want []tok.Token
 	}{
 		{
 			str: `{"a":"b"}`,
-			want: []token.Token{
-				token.OpeningCurlyBraceToken,
-				token.Token{TokenType: token.String, Literal: "a"},
-				token.ColonToken,
-				token.Token{TokenType: token.String, Literal: "b"},
-				token.ClosingCurlyBraceToken,
-				token.EOFToken,
+			want: []tok.Token{
+				tok.OpeningCurlyBraceToken,
+				{TokenType: tok.String, Literal: "a"},
+				tok.ColonToken,
+				{TokenType: tok.String, Literal: "b"},
+				tok.ClosingCurlyBraceToken,
+				tok.EOFToken,
 			},
 		},
 		{
 			str: "   ",
-			want: []token.Token{
-				token.EOFToken,
+			want: []tok.Token{
+				tok.EOFToken,
 			},
 		},
 		{
 			str: `   "a"   123 true`,
-			want: []token.Token{
-				token.Token{TokenType: token.String, Literal: "a"},
-				token.Token{TokenType: token.Integer, Literal: "123"},
-				token.BooleanTrueToken,
-				token.EOFToken,
+			want: []tok.Token{
+				{TokenType: tok.String, Literal: "a"},
+				{TokenType: tok.Integer, Literal: "123"},
+				tok.BooleanTrueToken,
+				tok.EOFToken,
 			},
 		},
 		{
 			str: "{a}",
-			want: []token.Token{
-				token.OpeningCurlyBraceToken,
-				token.Token{TokenType: token.Invalid, Literal: "a"},
-				token.ClosingCurlyBraceToken,
-				token.EOFToken,
+			want: []tok.Token{
+				tok.OpeningCurlyBraceToken,
+				{TokenType: tok.Invalid, Literal: "a"},
+				tok.ClosingCurlyBraceToken,
+				tok.EOFToken,
 			},
 		},
 		{
@@ -369,58 +370,58 @@ func TestReadToken(t *testing.T) {
   			"f": null,
   			"g": true
 			}`,
-			want: []token.Token{
-				token.OpeningCurlyBraceToken,
-				token.Token{TokenType: token.String, Literal: "a"},
-				token.ColonToken,
-				token.Token{TokenType: token.String, Literal: "1"},
-				token.CommaToken,
-				token.Token{TokenType: token.String, Literal: "b"},
-				token.ColonToken,
-				token.Token{TokenType: token.Integer, Literal: "1"},
-				token.CommaToken,
-				token.Token{TokenType: token.String, Literal: "c"},
-				token.ColonToken,
-				token.Token{TokenType: token.FloatingPoint, Literal: "1.0"},
-				token.CommaToken,
-				token.Token{TokenType: token.String, Literal: "d"},
-				token.ColonToken,
-				token.OpeningCurlyBraceToken,
-				token.ClosingCurlyBraceToken,
-				token.CommaToken,
-				token.Token{TokenType: token.String, Literal: "e"},
-				token.ColonToken,
-				token.OpeningSquareBracketToken,
-				token.OpeningCurlyBraceToken,
-				token.Token{TokenType: token.String, Literal: "z"},
-				token.ColonToken,
-				token.OpeningSquareBracketToken,
-				token.Token{TokenType: token.String, Literal: "a"},
-				token.CommaToken,
-				token.Token{TokenType: token.FloatingPoint, Literal: "0.15"},
-				token.CommaToken,
-				token.BooleanFalseToken,
-				token.CommaToken,
-				token.NullToken,
-				token.CommaToken,
-				token.BooleanTrueToken,
-				token.CommaToken,
-				token.Token{TokenType: token.Integer, Literal: "-12"},
-				token.CommaToken,
-				token.Token{TokenType: token.FloatingPoint, Literal: "-0.123"},
-				token.ClosingSquareBracketToken,
-				token.ClosingCurlyBraceToken,
-				token.ClosingSquareBracketToken,
-				token.CommaToken,
-				token.Token{TokenType: token.String, Literal: "f"},
-				token.ColonToken,
-				token.Token{TokenType: token.Null, Literal: "null"},
-				token.CommaToken,
-				token.Token{TokenType: token.String, Literal: "g"},
-				token.ColonToken,
-				token.BooleanTrueToken,
-				token.ClosingCurlyBraceToken,
-				token.EOFToken,
+			want: []tok.Token{
+				tok.OpeningCurlyBraceToken,
+				{TokenType: tok.String, Literal: "a"},
+				tok.ColonToken,
+				{TokenType: tok.String, Literal: "1"},
+				tok.CommaToken,
+				{TokenType: tok.String, Literal: "b"},
+				tok.ColonToken,
+				{TokenType: tok.Integer, Literal: "1"},
+				tok.CommaToken,
+				{TokenType: tok.String, Literal: "c"},
+				tok.ColonToken,
+				{TokenType: tok.FloatingPoint, Literal: "1.0"},
+				tok.CommaToken,
+				{TokenType: tok.String, Literal: "d"},
+				tok.ColonToken,
+				tok.OpeningCurlyBraceToken,
+				tok.ClosingCurlyBraceToken,
+				tok.CommaToken,
+				{TokenType: tok.String, Literal: "e"},
+				tok.ColonToken,
+				tok.OpeningSquareBracketToken,
+				tok.OpeningCurlyBraceToken,
+				{TokenType: tok.String, Literal: "z"},
+				tok.ColonToken,
+				tok.OpeningSquareBracketToken,
+				{TokenType: tok.String, Literal: "a"},
+				tok.CommaToken,
+				{TokenType: tok.FloatingPoint, Literal: "0.15"},
+				tok.CommaToken,
+				tok.BooleanFalseToken,
+				tok.CommaToken,
+				tok.NullToken,
+				tok.CommaToken,
+				tok.BooleanTrueToken,
+				tok.CommaToken,
+				{TokenType: tok.Integer, Literal: "-12"},
+				tok.CommaToken,
+				{TokenType: tok.FloatingPoint, Literal: "-0.123"},
+				tok.ClosingSquareBracketToken,
+				tok.ClosingCurlyBraceToken,
+				tok.ClosingSquareBracketToken,
+				tok.CommaToken,
+				{TokenType: tok.String, Literal: "f"},
+				tok.ColonToken,
+				{TokenType: tok.Null, Literal: "null"},
+				tok.CommaToken,
+				{TokenType: tok.String, Literal: "g"},
+				tok.ColonToken,
+				tok.BooleanTrueToken,
+				tok.ClosingCurlyBraceToken,
+				tok.EOFToken,
 			},
 		},
 	}
@@ -436,18 +437,18 @@ func TestReadToken(t *testing.T) {
 	}
 }
 
-func readAllTokens(lexer Lexer) []token.Token {
-	tokens := make([]token.Token, 0)
+func readAllTokens(lexer Lexer) []tok.Token {
+	toks := make([]tok.Token, 0)
 	for {
-		tok := lexer.ReadToken()
-		tokens = append(tokens, tok)
-		if tok == token.EOFToken {
-			return tokens
+		t := lexer.ReadToken()
+		toks = append(toks, t)
+		if t == tok.EOFToken {
+			return toks
 		}
 	}
 }
 
-func equalTokenSlices(t1, t2 []token.Token) bool {
+func equalTokenSlices(t1, t2 []tok.Token) bool {
 	if len(t1) != len(t2) {
 		return false
 	}

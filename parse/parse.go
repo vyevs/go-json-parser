@@ -6,57 +6,58 @@ import (
 	"strconv"
 
 	"github.com/vyevs/json/lex"
-	"github.com/vyevs/json/token"
+	"github.com/vyevs/json/tok"
 )
 
+// Parse reads the bytes in r and returns a JSON doc (if valid)
+// or an error on some JSON syntax error
 func Parse(r io.Reader) (interface{}, error) {
 	l := lex.New(r)
 
-	tok := l.ReadToken()
+	t := l.ReadToken()
 
-	switch tok.TokenType {
-	case token.OpeningCurlyBrace:
-		return parseValue(l, tok)
-	case token.Invalid:
-		return nil, fmt.Errorf("Found invalid token: %s", tok.Literal)
+	switch t.TokenType {
+	case tok.OpeningCurlyBrace:
+		return parseValue(l, t)
+	case tok.Invalid:
+		return nil, fmt.Errorf("Found invalid token: %s", t.Literal)
 	default:
-		return parseSingleValueDoc(l, tok)
+		return parseSingleValueDoc(l, t)
 	}
 }
 
-func parseSingleValueDoc(l lex.Lexer, ct token.Token) (interface{}, error) {
+func parseSingleValueDoc(l lex.Lexer, ct tok.Token) (interface{}, error) {
 	v, err := parseValue(l, ct)
 	if err != nil {
 		return nil, err
 	}
 	eof := l.ReadToken()
-	if eof.TokenType != token.EOF {
+	if eof.TokenType != tok.EOF {
 		return nil, fmt.Errorf("Expected end of document, found: %q", eof.Literal)
 	}
 	return v, nil
 }
 
 // parsing an object consists of reading a key followed by a colon
-// followed by a value
+// followed by a value repeatedly until we encounter a closing curly brace
 func parseObject(l lex.Lexer) (map[string]interface{}, error) {
 	out := map[string]interface{}{}
 	var seenValue bool
-	for tok := l.ReadToken(); tok.TokenType != token.ClosingCurlyBrace; tok = l.ReadToken() {
-		fmt.Println(tok)
+	for t := l.ReadToken(); t.TokenType != tok.ClosingCurlyBrace; t = l.ReadToken() {
 		if seenValue {
-			if tok.TokenType != token.Comma {
-				return nil, fmt.Errorf("Expected comma(%q) got %q", ",", tok.Literal)
+			if t.TokenType != tok.Comma {
+				return nil, fmt.Errorf("Expected comma(%q) got %q", ",", t.Literal)
 			}
-			tok = l.ReadToken()
+			t = l.ReadToken()
 		}
-		if tok.TokenType != token.String {
-			return nil, fmt.Errorf("Expected key, got: %q", tok.Literal)
+		if t.TokenType != tok.String {
+			return nil, fmt.Errorf("Expected key, got: %q", t.Literal)
 		}
-		key := tok.Literal
+		key := t.Literal
 
-		tok = l.ReadToken()
-		if tok.TokenType != token.Colon {
-			return nil, fmt.Errorf("Expected colon (%q): got: %q", ":", tok.Literal)
+		t = l.ReadToken()
+		if t.TokenType != tok.Colon {
+			return nil, fmt.Errorf("Expected colon (%q): got: %q", ":", t.Literal)
 		}
 
 		v, err := parseValue(l, l.ReadToken())
@@ -76,21 +77,21 @@ func parseObject(l lex.Lexer) (map[string]interface{}, error) {
 // parseValue expects ct to contain the first token representing a value
 // e.g.: "[" for array, "{" for object, str for string value
 // the comma before a value (if any) should already be consumed by the calling func
-func parseValue(l lex.Lexer, ct token.Token) (interface{}, error) {
+func parseValue(l lex.Lexer, ct tok.Token) (interface{}, error) {
 	switch ct.TokenType {
-	case token.String:
+	case tok.String:
 		return ct.Literal, nil
-	case token.Integer:
+	case tok.Integer:
 		return parseInteger(ct.Literal)
-	case token.FloatingPoint:
+	case tok.FloatingPoint:
 		return parseFloatingPoint(ct.Literal)
-	case token.OpeningCurlyBrace:
+	case tok.OpeningCurlyBrace:
 		return parseObject(l)
-	case token.OpeningSquareBracket:
+	case tok.OpeningSquareBracket:
 		return parseArray(l)
-	case token.Boolean:
+	case tok.Boolean:
 		return parseBool(ct.Literal)
-	case token.Null:
+	case tok.Null:
 		return nil, nil
 	}
 	return nil, fmt.Errorf("parseValue() received unknown token %v", ct)
@@ -104,15 +105,15 @@ func parseArray(l lex.Lexer) ([]interface{}, error) {
 	// array tokens are read in pairs after the 1st value
 	// 1st token should be a comma followed by a value EXCEPT for the 1st
 	// value in the array
-	for tok := l.ReadToken(); tok.TokenType != token.ClosingSquareBracket; tok = l.ReadToken() {
+	for t := l.ReadToken(); t.TokenType != tok.ClosingSquareBracket; t = l.ReadToken() {
 		if seenValue {
-			if tok.TokenType != token.Comma {
-				return out, fmt.Errorf("expected comma(%q), found: %q", ",", tok.Literal)
+			if t.TokenType != tok.Comma {
+				return nil, fmt.Errorf("expected comma(%q), found: %q", ",", t.Literal)
 			}
-			tok = l.ReadToken()
+			t = l.ReadToken()
 		}
 		seenValue = true
-		v, err := parseValue(l, tok)
+		v, err := parseValue(l, t)
 		if err != nil {
 			return nil, err
 		}

@@ -1,9 +1,11 @@
-package token
+package tok
 
 import "fmt"
 
+// TokenType represents a sequence of characters in a JSON document
 type TokenType int
 
+// the TokenTypes that a valid json doc will contain (not including Invalid)
 const (
 	OpeningCurlyBrace TokenType = iota
 	ClosingCurlyBrace
@@ -63,9 +65,10 @@ var tokenTypeToPredefinedToken = map[TokenType]Token{
 	Comma:                CommaToken,
 }
 
-// for use with single character tokens
-func TokenTypeToPredefinedToken(tokenType TokenType) (Token, bool) {
-	tok, ok := tokenTypeToPredefinedToken[tokenType]
+// TokenTypeToPredefinedToken returns a predefined token for the given TokenType
+// a convenience method
+func TokenTypeToPredefinedToken(tt TokenType) (Token, bool) {
+	tok, ok := tokenTypeToPredefinedToken[tt]
 	return tok, ok
 }
 

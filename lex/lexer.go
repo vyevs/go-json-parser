@@ -4,9 +4,10 @@ import (
 	"bufio"
 	"io"
 
-	"github.com/vyevs/json/token"
+	"github.com/vyevs/json/tok"
 )
 
+// Lexer reads bytes from r into Tokens
 type Lexer struct {
 	r *bufio.Reader
 }
@@ -16,9 +17,9 @@ func New(r io.Reader) Lexer {
 }
 
 // ReadToken reads a single Token from the Lexer
-func (l Lexer) ReadToken() token.Token {
+func (l Lexer) ReadToken() tok.Token {
 	if !consumeWhiteSpace(l.r) {
-		return token.EOFToken
+		return tok.EOFToken
 	}
 	return readTokenNoWhitespace(l.r)
 }
@@ -44,41 +45,41 @@ func isWhitespace(b byte) bool {
 }
 
 // reads a single token that begins with the next byte read from r
-func readTokenNoWhitespace(r *bufio.Reader) token.Token {
+func readTokenNoWhitespace(r *bufio.Reader) tok.Token {
 	b, _ := r.ReadByte()
 
 	return readTokenBeginningWithByte(r, b)
 }
 
-func readTokenBeginningWithByte(r *bufio.Reader, b byte) token.Token {
-	tt := token.ByteToTokenType(b)
+func readTokenBeginningWithByte(r *bufio.Reader, b byte) tok.Token {
+	tt := tok.ByteToTokenType(b)
 
-	if tt == token.Invalid {
-		return token.Token{TokenType: token.Invalid, Literal: string(b)}
+	if tt == tok.Invalid {
+		return tok.Token{TokenType: tok.Invalid, Literal: string(b)}
 	}
 
 	return readTokenOfType(r, tt)
 }
 
-func readTokenOfType(r *bufio.Reader, tt token.TokenType) token.Token {
-	if tok, ok := token.TokenTypeToPredefinedToken(tt); ok {
+func readTokenOfType(r *bufio.Reader, tt tok.TokenType) tok.Token {
+	if tok, ok := tok.TokenTypeToPredefinedToken(tt); ok {
 		return tok
 	}
 
 	switch tt {
 
-	case token.String:
+	case tok.String:
 		return readStringToken(r)
 
-	case token.Null:
+	case tok.Null:
 		_ = r.UnreadByte()
 		return readNullToken(r)
 
-	case token.Boolean:
+	case tok.Boolean:
 		_ = r.UnreadByte()
 		return readBoolToken(r)
 
-	case token.Integer:
+	case tok.Integer:
 		_ = r.UnreadByte()
 		return readNumericToken(r)
 

@@ -18,6 +18,8 @@ func Parse(r io.Reader) (interface{}, error) {
 	return parse.Parse(r)
 }
 
+// ParseStr is a convenience method
+// Does same thing as Parse but reading from a string
 func ParseStr(str string) (interface{}, error) {
 	r := strings.NewReader(str)
 
