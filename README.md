@@ -1,3 +1,5 @@
+[![Go Report Card](https://goreportcard.com/badge/github.com/vyevs/go-json-parser)](https://goreportcard.com/report/github.com/vyevs/go-json-parser)
+
 # go-json-parser
 go-json-parser
 
