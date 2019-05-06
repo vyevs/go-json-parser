@@ -12,6 +12,7 @@ type Lexer struct {
 	r *bufio.Reader
 }
 
+// New returns a Lexer that will tokenize the input from r
 func New(r io.Reader) Lexer {
 	return Lexer{r: bufio.NewReader(r)}
 }
