@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"io"
 
-	"github.com/vyevs/json/tok"
+	"github.com/vyevs/gojson/tok"
 )
 
 // Lexer reads bytes from r into Tokens

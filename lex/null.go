@@ -3,7 +3,7 @@ package lex
 import (
 	"bufio"
 
-	"github.com/vyevs/json/tok"
+	"github.com/vyevs/gojson/tok"
 )
 
 // attempts to read "null" and return the corresponding token

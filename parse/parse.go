@@ -5,8 +5,8 @@ import (
 	"io"
 	"strconv"
 
-	"github.com/vyevs/json/lex"
-	"github.com/vyevs/json/tok"
+	"github.com/vyevs/gojson/lex"
+	"github.com/vyevs/gojson/tok"
 )
 
 // Parse reads the bytes in r and returns a JSON doc (if valid)

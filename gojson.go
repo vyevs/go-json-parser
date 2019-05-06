@@ -1,10 +1,10 @@
-package json
+package gojson
 
 import (
 	"io"
 	"strings"
 
-	"github.com/vyevs/json/parse"
+	"github.com/vyevs/gojson/parse"
 )
 
 // Parse parses the bytes in the reader into a json object

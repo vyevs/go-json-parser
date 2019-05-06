@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"strings"
 
-	"github.com/vyevs/json/tok"
+	"github.com/vyevs/gojson/tok"
 )
 
 // reads an Integer or FloatingPoint token from r

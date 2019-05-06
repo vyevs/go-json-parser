@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"fmt"
 
-	"github.com/vyevs/json/tok"
+	"github.com/vyevs/gojson/tok"
 )
 
 // attempts to read "true" or "false" and returns the corresponding token

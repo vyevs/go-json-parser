@@ -1,7 +1,7 @@
-[![Go Report Card](https://goreportcard.com/badge/github.com/vyevs/go-json-parser)](https://goreportcard.com/report/github.com/vyevs/go-json-parser)
+[![Go Report Card](https://goreportcard.com/badge/github.com/vyevs/gojson)](https://goreportcard.com/report/github.com/vyevs/gojson)
 
-# go-json-parser
-go-json-parser
+# gojson
+gojson
 
 Simple streaming JSON parser.
 
@@ -14,11 +14,11 @@ The `Parse(io.Reader)` and `ParseStr(string)` functions are the interface provid
 
 Run tests:
 
-`GOPATH/github.com/vyevs/json> test ./...`
+`GOPATH/github.com/vyevs/gojson> test ./...`
 
 Run benchmark that's setup against encoding/json:
 
-`GOPATH/github.com/vyevs/json> test bench=. ./...`
+`GOPATH/github.com/vyevs/gojson> test bench=. ./...`
 
 NOTE: Benchmarks may take some time to run, as they run against the test files in parse/testdata
 Any files added to testdata will be tested against

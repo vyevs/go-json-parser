@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/vyevs/json/tok"
+	"github.com/vyevs/gojson/tok"
 )
 
 func TestReadBoolLiteral(t *testing.T) {

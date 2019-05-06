@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"strings"
 
-	"github.com/vyevs/json/tok"
+	"github.com/vyevs/gojson/tok"
 )
 
 // attempts to read a string literal token from r

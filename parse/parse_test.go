@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/vyevs/json/lex"
+	"github.com/vyevs/gojson/lex"
 )
 
 func TestParseInteger(t *testing.T) {
