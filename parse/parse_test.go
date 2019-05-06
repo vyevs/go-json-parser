@@ -1,6 +1,8 @@
 package parse
 
 import (
+	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -207,7 +209,7 @@ func TestParse(t *testing.T) {
 		{literal: `potato`, wantErr: true},
 		{literal: ``, wantErr: true},
 		{
-			literal: `   {
+			literal: `{
       "Actors": [
         {
           "name": "Tom Cruise",
@@ -339,39 +341,50 @@ func equal(v1, v2 interface{}) bool {
 }
 
 func BenchmarkParse(b *testing.B) {
-	files, err := openTestFiles()
+	paths, err := getTestFilePaths()
 	if err != nil {
-		b.Fatalf("error opening test files: %v", err)
+		b.Fatalf("getTestFilePaths(): %v", err)
 	}
 
-	for _, f := range files {
-		b.Run(f.name, func(b *testing.B) {
+	for _, path := range paths {
+		b.Run(path, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				_, err := Parse(f.r)
+				f, err := os.Open(path)
+				if err != nil {
+					b.Fatal(err)
+				}
+				_, err = Parse(f)
 				if err != nil {
 					b.Fatalf("Unexpected Parse() failure: %v", err)
 				}
+				f.Close()
+			}
+		})
+		b.Run(fmt.Sprintf("%s%s", path, "STDLIB"), func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				f, err := os.Open(path)
+				if err != nil {
+					b.Fatal(err)
+				}
+				d := json.NewDecoder(f)
+				var v interface{}
+				err = d.Decode(&v)
+				if err != nil {
+					b.Fatalf("Unexpected Decode() failure: %v", err)
+				}
+				f.Close()
 			}
 		})
 	}
 }
 
-type testFile struct {
-	r    *os.File
-	name string
-}
-
-func openTestFiles() ([]testFile, error) {
-	out := make([]testFile, 0)
+func getTestFilePaths() ([]string, error) {
+	out := make([]string, 0)
 	err := filepath.Walk("testdata", func(path string, info os.FileInfo, err error) error {
 		if info.IsDir() {
 			return nil
 		}
-		f, err := os.Open(path)
-		if err != nil {
-			return err
-		}
-		out = append(out, testFile{r: f, name: info.Name()})
+		out = append(out, path)
 		return nil
 	})
 	return out, err
