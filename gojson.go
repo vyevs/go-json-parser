@@ -1,6 +1,7 @@
 package gojson
 
 import (
+	"bytes"
 	"io"
 	"strings"
 
@@ -22,6 +23,12 @@ func Parse(r io.Reader) (interface{}, error) {
 // Does same thing as Parse but reading from a string
 func ParseStr(str string) (interface{}, error) {
 	r := strings.NewReader(str)
+
+	return parse.Parse(r)
+}
+
+func ParseBytes(b []byte) (interface{}, error) {
+	r := bytes.NewReader(b)
 
 	return parse.Parse(r)
 }

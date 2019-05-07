@@ -2,73 +2,72 @@ package lex
 
 import (
 	"bufio"
-	"strings"
 
 	"github.com/vyevs/gojson/tok"
 )
 
 // reads an Integer or FloatingPoint token from r
 // returns an Invalid token if the following bytes do not form a numeric token
-func readNumericToken(r *bufio.Reader) tok.Token {
-	literal, ok := readNumericLiteral(r)
+func readNumericBytes(r *bufio.Reader) ([]byte, tok.TokenType) {
+	bytes, ok := readNumericLiteral(r)
 	if !ok {
-		return tok.Token{TokenType: tok.Invalid, Literal: literal}
+		return nil, tok.Invalid
 	}
 
-	if ok := validateNumericLiteral(literal); !ok {
-		return tok.Token{TokenType: tok.Invalid, Literal: literal}
+	if ok := validateNumericBytes(bytes); !ok {
+		return nil, tok.Invalid
 	}
 
-	tokType := numericLiteralTokenType(literal)
+	tokType := numericLiteralTokenType(bytes)
 
-	return tok.Token{TokenType: tokType, Literal: literal}
+	return bytes, tokType
 }
 
 // readNumericLiteral attempts to read a numeric literal(either integer or floating point) from r
 // consumes only the bytes of the numeric literal, not the byte after
-func readNumericLiteral(r *bufio.Reader) (string, bool) {
+func readNumericLiteral(r *bufio.Reader) ([]byte, bool) {
 	b, err := r.ReadByte()
 	if err != nil {
-		return "", false
+		return nil, false
 	} else if !isDigit(b) && b != '-' {
-		return string(b), false
+		return nil, false
 	}
 
 	var seenPeriod bool
-	var builder strings.Builder
-	builder.WriteByte(b)
+	buf := make([]byte, 0, 8)
 	for {
 		b, err := r.ReadByte()
 		if err != nil {
-			return builder.String(), true
+			return buf, true
 		}
 		if b == '.' {
 			if seenPeriod {
-				builder.WriteByte(b)
-				return builder.String(), false
+				return nil, false
 			}
 			seenPeriod = true
 		} else if !isDigit(b) {
 			break
 		}
-		builder.WriteByte(b)
+		buf = append(buf, b)
 	}
 	_ = r.UnreadByte()
 
-	return builder.String(), true
+	return buf, true
 }
 
 // checks the numeric type of the literal, either token.Integer or token.FloatingPoint
-func numericLiteralTokenType(literal string) tok.TokenType {
-	if strings.Contains(literal, ".") {
-		return tok.FloatingPoint
+func numericLiteralTokenType(literal []byte) tok.TokenType {
+	for _, b := range literal {
+		if b == '.' {
+			return tok.FloatingPoint
+		}
 	}
 	return tok.Integer
 }
 
 // validates that the literal does not begin with an illegal 0
 // e.g.: 01, 01.1, -01, -01.1
-func validateNumericLiteral(literal string) bool {
+func validateNumericBytes(literal []byte) bool {
 	// strip minus for negative number
 	if literal[0] == '-' {
 		literal = literal[1:]

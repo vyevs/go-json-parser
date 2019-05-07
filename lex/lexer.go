@@ -9,7 +9,8 @@ import (
 
 // Lexer reads bytes from r into Tokens
 type Lexer struct {
-	r *bufio.Reader
+	r              *bufio.Reader
+	lastTokenBytes []byte
 }
 
 // New returns a Lexer that will tokenize the input from r
@@ -18,11 +19,15 @@ func New(r io.Reader) Lexer {
 }
 
 // ReadToken reads a single Token from the Lexer
-func (l Lexer) ReadToken() tok.Token {
+func (l Lexer) ReadToken() tok.TokenType {
 	if !consumeWhiteSpace(l.r) {
 		return tok.EOFToken
 	}
-	return readTokenNoWhitespace(l.r)
+	return l.readTokenNoWhitespace()
+}
+
+func (l Lexer) GetTokenLiteral() []byte {
+	return l.lastTokenBytes
 }
 
 // consumes all whitespace characters as defined by isWhiteSpace()
@@ -34,60 +39,48 @@ func consumeWhiteSpace(r *bufio.Reader) bool {
 		if err != nil {
 			return false
 		}
-		if !isWhitespace(b) {
+		if !(b == ' ' || b == '\n' || b == '\t') {
 			_ = r.UnreadByte()
 			return true
 		}
 	}
 }
 
-func isWhitespace(b byte) bool {
-	return b == ' ' || b == '\n' || b == '\t'
-}
-
 // reads a single token that begins with the next byte read from r
-func readTokenNoWhitespace(r *bufio.Reader) tok.Token {
-	b, _ := r.ReadByte()
+func (l Lexer) readTokenNoWhitespace() tok.TokenType {
+	b, _ := l.r.ReadByte()
 
-	return readTokenBeginningWithByte(r, b)
-}
-
-func readTokenBeginningWithByte(r *bufio.Reader, b byte) tok.Token {
 	tt := tok.ByteToTokenType(b)
 
-	if tt == tok.Invalid {
-		return tok.Token{TokenType: tok.Invalid, Literal: string(b)}
+	var ok bool
+	if tt == tok.BooleanTrue {
+		ok = consumeBytes(l.r, []byte{'r', 'u', 'e'})
+	} else if tt == tok.BooleanFalse {
+		ok = consumeBytes(l.r, []byte{'a', 'l', 's', 'e'})
+	} else if tt == tok.Null {
+		ok = consumeBytes(l.r, []byte{'u', 'l', 'l'})
+	} else if tt == tok.String {
+		l.lastTokenBytes, ok = readStringBytes(l.r)
+	} else if tt == tok.Integer {
+		_ = l.r.UnreadByte()
+		l.lastTokenBytes, tt = readNumericBytes(l.r)
 	}
 
-	return readTokenOfType(r, tt)
+	if !ok {
+		return tok.Invalid
+	}
+
+	return tt
 }
 
-func readTokenOfType(r *bufio.Reader, tt tok.TokenType) tok.Token {
-	if tok, ok := tok.TokenTypeToPredefinedToken(tt); ok {
-		return tok
+func consumeBytes(r *bufio.Reader, target []byte) bool {
+	for _, b := range target {
+		curB, err := r.ReadByte()
+		if err != nil || curB != b {
+			return false
+		}
 	}
-
-	switch tt {
-
-	case tok.String:
-		return readStringToken(r)
-
-	case tok.Null:
-		_ = r.UnreadByte()
-		return readNullToken(r)
-
-	case tok.Boolean:
-		_ = r.UnreadByte()
-		return readBoolToken(r)
-
-	case tok.Integer:
-		_ = r.UnreadByte()
-		return readNumericToken(r)
-
-	default:
-		// not possible, indicates some internal bug
-		panic("readTokenOfType() received unknown tokenType, INTERNAL BUG")
-	}
+	return true
 }
 
 // utility function used to read bool & null literals
