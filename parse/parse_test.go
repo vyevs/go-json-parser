@@ -1,8 +1,10 @@
 package parse
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -347,32 +349,29 @@ func BenchmarkParse(b *testing.B) {
 	}
 
 	for _, path := range paths {
+		fbytes, err := ioutil.ReadFile(path)
+		if err != nil {
+			b.Fatalf("ReadFile(%q): %v", path, err)
+		}
+		r := bytes.NewReader(fbytes)
 		b.Run(path, func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				f, err := os.Open(path)
-				if err != nil {
-					b.Fatal(err)
-				}
-				_, err = Parse(f)
+				_, err = Parse(r)
 				if err != nil {
 					b.Fatalf("Unexpected Parse() failure: %v", err)
 				}
-				f.Close()
+				r.Reset(fbytes)
 			}
 		})
 		b.Run(fmt.Sprintf("%s%s", path, "STDLIB"), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				f, err := os.Open(path)
-				if err != nil {
-					b.Fatal(err)
-				}
-				d := json.NewDecoder(f)
+				d := json.NewDecoder(r)
 				var v interface{}
 				err = d.Decode(&v)
 				if err != nil {
 					b.Fatalf("Unexpected Decode() failure: %v", err)
 				}
-				f.Close()
+				r.Reset(fbytes)
 			}
 		})
 	}
