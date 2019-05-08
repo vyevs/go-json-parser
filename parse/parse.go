@@ -83,7 +83,7 @@ func parseObject(l *lex.Lexer) (map[string]interface{}, error) {
 func parseValue(l *lex.Lexer, ct tok.Type) (interface{}, error) {
 	switch ct {
 	case tok.String:
-		return string(l.GetTokenBytes()), nil
+		return l.GetLastString(), nil
 	case tok.Integer:
 		return parseInteger(l.GetTokenBytes())
 	case tok.Float:

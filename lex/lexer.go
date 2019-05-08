@@ -3,6 +3,7 @@ package lex
 import (
 	"bufio"
 	"io"
+	"strings"
 
 	"github.com/vyevs/gojson/tok"
 )
@@ -11,11 +12,13 @@ import (
 type Lexer struct {
 	r              *bufio.Reader
 	lastTokenBytes []byte
+	lastString     strings.Builder
 }
 
 // New returns a Lexer that will tokenize the input from r
 func New(r io.Reader) *Lexer {
-	return &Lexer{r: bufio.NewReader(r)}
+	return &Lexer{r: bufio.NewReader(r),
+		lastTokenBytes: make([]byte, 0, 1024)}
 }
 
 // ReadToken reads a single Token from the Lexer
@@ -27,7 +30,15 @@ func (l *Lexer) ReadToken() tok.Type {
 }
 
 func (l *Lexer) GetTokenBytes() []byte {
-	return l.lastTokenBytes
+	out := l.lastTokenBytes
+	l.lastTokenBytes = l.lastTokenBytes[:0]
+	return out
+}
+
+func (l *Lexer) GetLastString() string {
+	out := l.lastString.String()
+	l.lastString.Reset()
+	return out
 }
 
 // consumes all whitespace characters as defined by isWhiteSpace()
@@ -60,10 +71,10 @@ func (l *Lexer) readTokenNoWhitespace() tok.Type {
 	} else if tt == tok.Null {
 		ok = consumeBytes(l.r, []byte{'u', 'l', 'l'})
 	} else if tt == tok.String {
-		l.lastTokenBytes, ok = readStringBytes(l.r)
+		ok = l.readStringBytes()
 	} else if tt == tok.Integer {
 		_ = l.r.UnreadByte()
-		l.lastTokenBytes, tt = readNumericBytes(l.r)
+		tt = l.readNumericBytes()
 	}
 
 	if !ok {

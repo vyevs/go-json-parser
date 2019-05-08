@@ -1,7 +1,6 @@
 package lex
 
 import (
-	"bufio"
 	"strings"
 	"testing"
 
@@ -51,13 +50,15 @@ func TestReadNumericBytes(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		r := bufio.NewReader(strings.NewReader(test.literal))
+		l := New(strings.NewReader(test.literal))
 
 		wantBytes := []byte(test.wantStr)
 
-		gotBytes, gotType := readNumericBytes(r)
+		gotType := l.readNumericBytes()
 
-		if gotType != test.wantType || !equalSlices(gotBytes, wantBytes) {
+		gotBytes := l.GetTokenBytes()
+
+		if gotType != test.wantType || test.wantStr != "" && !equalSlices(gotBytes, wantBytes) {
 			t.Errorf("literal: %q, got: %q, want: %q, gotType: %s, wantType: %s",
 				test.literal, gotBytes, test.wantStr, gotType, test.wantType)
 		}

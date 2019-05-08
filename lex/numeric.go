@@ -1,59 +1,55 @@
 package lex
 
 import (
-	"bufio"
-
 	"github.com/vyevs/gojson/tok"
 )
 
 // reads an Integer or FloatingPoint token from r
 // returns an Invalid token if the following bytes do not form a numeric token
-func readNumericBytes(r *bufio.Reader) ([]byte, tok.Type) {
-	bytes, ok := readNumericLiteral(r)
-	if !ok {
-		return nil, tok.Invalid
+func (l *Lexer) readNumericBytes() tok.Type {
+	if !l.readNumericLiteral() {
+		return tok.Invalid
 	}
 
-	if ok := validateNumericBytes(bytes); !ok {
-		return nil, tok.Invalid
+	if ok := validateNumericBytes(l.lastTokenBytes); !ok {
+		return tok.Invalid
 	}
 
-	tokType := numericLiteralType(bytes)
+	tokType := numericLiteralType(l.lastTokenBytes)
 
-	return bytes, tokType
+	return tokType
 }
 
 // readNumericLiteral attempts to read a numeric literal(either integer or floating point) from r
 // consumes only the bytes of the numeric literal, not the byte after
-func readNumericLiteral(r *bufio.Reader) ([]byte, bool) {
-	b, err := r.ReadByte()
+func (l *Lexer) readNumericLiteral() bool {
+	b, err := l.r.ReadByte()
 	if err != nil {
-		return nil, false
+		return false
 	} else if !isDigit(b) && b != '-' {
-		return nil, false
+		return false
 	}
 
 	var seenPeriod bool
-	buf := make([]byte, 0, 8)
-	buf = append(buf, b)
+	l.lastTokenBytes = append(l.lastTokenBytes, b)
 	for {
-		b, err := r.ReadByte()
+		b, err := l.r.ReadByte()
 		if err != nil {
-			return buf, true
+			return true
 		}
 		if b == '.' {
 			if seenPeriod {
-				return nil, false
+				return false
 			}
 			seenPeriod = true
 		} else if !isDigit(b) {
 			break
 		}
-		buf = append(buf, b)
+		l.lastTokenBytes = append(l.lastTokenBytes, b)
 	}
-	_ = r.UnreadByte()
+	_ = l.r.UnreadByte()
 
-	return buf, true
+	return true
 }
 
 // checks the numeric type of the literal, either token.Integer or token.FloatingPoint
