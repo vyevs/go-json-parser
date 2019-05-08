@@ -14,19 +14,19 @@ type Lexer struct {
 }
 
 // New returns a Lexer that will tokenize the input from r
-func New(r io.Reader) Lexer {
-	return Lexer{r: bufio.NewReader(r)}
+func New(r io.Reader) *Lexer {
+	return &Lexer{r: bufio.NewReader(r)}
 }
 
 // ReadToken reads a single Token from the Lexer
-func (l Lexer) ReadToken() tok.TokenType {
+func (l *Lexer) ReadToken() tok.Type {
 	if !consumeWhiteSpace(l.r) {
-		return tok.EOFToken
+		return tok.EOF
 	}
 	return l.readTokenNoWhitespace()
 }
 
-func (l Lexer) GetTokenLiteral() []byte {
+func (l *Lexer) GetTokenBytes() []byte {
 	return l.lastTokenBytes
 }
 
@@ -47,15 +47,15 @@ func consumeWhiteSpace(r *bufio.Reader) bool {
 }
 
 // reads a single token that begins with the next byte read from r
-func (l Lexer) readTokenNoWhitespace() tok.TokenType {
+func (l *Lexer) readTokenNoWhitespace() tok.Type {
 	b, _ := l.r.ReadByte()
 
-	tt := tok.ByteToTokenType(b)
+	tt := tok.ByteToType(b)
 
-	var ok bool
-	if tt == tok.BooleanTrue {
+	ok := true
+	if tt == tok.True {
 		ok = consumeBytes(l.r, []byte{'r', 'u', 'e'})
-	} else if tt == tok.BooleanFalse {
+	} else if tt == tok.False {
 		ok = consumeBytes(l.r, []byte{'a', 'l', 's', 'e'})
 	} else if tt == tok.Null {
 		ok = consumeBytes(l.r, []byte{'u', 'l', 'l'})
@@ -81,12 +81,4 @@ func consumeBytes(r *bufio.Reader, target []byte) bool {
 		}
 	}
 	return true
-}
-
-// utility function used to read bool & null literals
-func readNByteStr(r *bufio.Reader, n int) (string, error) {
-	bytes := make([]byte, n)
-	n, err := io.ReadFull(r, bytes)
-	bytes = bytes[:n]
-	return string(bytes), err
 }

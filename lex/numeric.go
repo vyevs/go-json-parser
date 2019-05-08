@@ -8,7 +8,7 @@ import (
 
 // reads an Integer or FloatingPoint token from r
 // returns an Invalid token if the following bytes do not form a numeric token
-func readNumericBytes(r *bufio.Reader) ([]byte, tok.TokenType) {
+func readNumericBytes(r *bufio.Reader) ([]byte, tok.Type) {
 	bytes, ok := readNumericLiteral(r)
 	if !ok {
 		return nil, tok.Invalid
@@ -18,7 +18,7 @@ func readNumericBytes(r *bufio.Reader) ([]byte, tok.TokenType) {
 		return nil, tok.Invalid
 	}
 
-	tokType := numericLiteralTokenType(bytes)
+	tokType := numericLiteralType(bytes)
 
 	return bytes, tokType
 }
@@ -35,6 +35,7 @@ func readNumericLiteral(r *bufio.Reader) ([]byte, bool) {
 
 	var seenPeriod bool
 	buf := make([]byte, 0, 8)
+	buf = append(buf, b)
 	for {
 		b, err := r.ReadByte()
 		if err != nil {
@@ -56,10 +57,10 @@ func readNumericLiteral(r *bufio.Reader) ([]byte, bool) {
 }
 
 // checks the numeric type of the literal, either token.Integer or token.FloatingPoint
-func numericLiteralTokenType(literal []byte) tok.TokenType {
+func numericLiteralType(literal []byte) tok.Type {
 	for _, b := range literal {
 		if b == '.' {
-			return tok.FloatingPoint
+			return tok.Float
 		}
 	}
 	return tok.Integer
